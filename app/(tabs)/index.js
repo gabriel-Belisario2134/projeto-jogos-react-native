@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, ScrollView } from 'react-native';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
 
-export default function HomeScreen() {
+export default function index() {
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
   });
@@ -79,7 +79,7 @@ export default function HomeScreen() {
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>Jogos</Text>
+      <Text style={styles.titulo}>🎮 Jogos</Text>
       {jogos.map((jogo, index) => (
         <View key={index} style={styles.card}>
           {Array.isArray(jogo.imagem) ? (
@@ -91,9 +91,9 @@ export default function HomeScreen() {
           )}
           <View style={styles.info}>
             <Text style={styles.nome}>{jogo.nome}</Text>
-            <Text style={styles.detalhe}>Ano: {jogo.ano}</Text>
-            <Text style={styles.detalhe}>Gênero: {jogo.genero}</Text>
-            <Text style={styles.detalhe}>Desenvolvedora: {jogo.desenvolvedora}</Text>
+            <Text style={styles.detalhe}>📅 Ano: {jogo.ano}</Text>
+            <Text style={styles.detalhe}>🎯 Gênero: {jogo.genero}</Text>
+            <Text style={styles.detalhe}>🏢 Desenvolvedora: {jogo.desenvolvedora}</Text>
             <Text style={styles.descricao}>{jogo.descricao}</Text>
 
             {/* Comentário */}
@@ -111,15 +111,17 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#B0BEC5',
   },
   titulo: {
     fontSize: 24,
     fontFamily: 'Poppins_400Regular',
     marginBottom: 16,
-    color: '#333',
+    color: '#000',
+    fontWeight: 'bold',
   },
   card: {
+    marginTop: 10,
     backgroundColor: '#fff',
     borderRadius: 12,
     marginBottom: 20,
@@ -142,6 +144,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_400Regular',
     color: '#000',
     marginBottom: 4,
+    fontWeight: 'bold',
   },
   detalhe: {
     fontSize: 14,
@@ -150,18 +153,23 @@ const styles = StyleSheet.create({
   },
   descricao: {
     marginTop: 8,
-    fontSize: 14,
-    fontFamily: 'Poppins_400Regular',
+    fontSize: 15,
+    lineHeight: 22,
     color: '#444',
+    fontFamily: 'Poppins_400Regular',
   },
+  
   comentario: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 12,
-    backgroundColor: '#f1f1f1',
+    backgroundColor: '#f9f9f9',
     padding: 8,
     borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#607D8B',
   },
+  
   avatar: {
     width: 40,
     height: 40,
