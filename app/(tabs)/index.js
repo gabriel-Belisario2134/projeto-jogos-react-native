@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList, Dimensions, Alert } from 'react-native';
+import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity, Modal, FlatList, Dimensions, Alert, TextInput} from 'react-native';
 import { useFonts, Poppins_400Regular } from '@expo-google-fonts/poppins';
 import AppLoading from 'expo-app-loading';
-
+import { Picker } from '@react-native-picker/picker';
+import Slider from '@react-native-community/slider';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -11,6 +12,9 @@ export default function App() {
   const [fontsLoaded] = useFonts({ Poppins_400Regular });
   const [modalVisible, setModalVisible] = useState(false);
   const [curiosidadesSelecionadas, setCuriosidadesSelecionadas] = useState([]);
+  const [comentarios, setComentarios] = useState({});
+  const [genero, setGenero] = useState('');
+
   
   useEffect(() => {
     Alert.alert(
@@ -49,6 +53,7 @@ export default function App() {
         texto: 'Jogo viciante com ótimo gameplay e trilha sonora!',
         avatar: 'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=Athena',
       },
+      avaliacao: 5,
     },
     {
       nome: 'Elden Ring',
@@ -75,6 +80,7 @@ export default function App() {
         texto: 'Desafiador e lindo! Melhor jogo da FromSoftware.',
         avatar: 'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=Ragnar'
       },
+      avaliacao: 5
     },
     {
       nome: 'Hollow Knight',
@@ -102,6 +108,7 @@ export default function App() {
         texto: 'Arte e atmosfera incríveis. Obra-prima indie.',
         avatar: 'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=Luna'
       },
+      avaliacao: 4
     },
     {
       nome: 'The Witcher 3',
@@ -128,6 +135,7 @@ export default function App() {
         texto: 'Narrativa profunda e cheia de escolhas marcantes.',
         avatar: 'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=GeraltFan'
       },
+      avaliacao: 5
     },
     {
       nome: 'Baldur’s Gate 3',
@@ -154,6 +162,7 @@ export default function App() {
         texto: 'O melhor RPG em turnos dos últimos anos!',
         avatar: 'https://api.dicebear.com/7.x/adventurer-neutral/svg?seed=Shadowheart'
       },
+      avaliacao: 5
     },
   ];
 
@@ -161,20 +170,41 @@ export default function App() {
     setCuriosidadesSelecionadas({ curiosidades, imagensExtras });
     setModalVisible(true);
   };
+  const handleCommentChange = (jogoNome, texto) => {
+    setComentarios(prevComentarios => ({
+      ...prevComentarios,
+      [jogoNome]: texto,
+    }));
+  };
+
+  const atualizarAvaliacao = (index, valor) => {
+    const novosJogos = [...jogos];
+    novosJogos[index].avaliacao = valor;
+    setJogos(novosJogos);
+  };
+  
 
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.titulo}>🎮 Jogos</Text>
+      <Text style={styles.titulo}>🎮 GameGrid</Text>
+      <View style={styles.inputContainer}>
+          <Text style={styles.label}>Selecione o Gênero:</Text>
+        <Picker
+          selectedValue={genero}
+          onValueChange={(itemValue) => setGenero(itemValue)}
+          style={styles.picker}
+        >
+          <Picker.Item label="Selecione um gênero" value="" />
+          <Picker.Item label="Roguelike" value="acao" />
+          <Picker.Item label="Soulslike" value="aventura" />
+          <Picker.Item label="RPG" value="rpg" />
+          <Picker.Item label="Metroidvania" value="estrategia" />
+        </Picker>
+      </View>
       {jogos.map((jogo, index) => (
         <View key={index} style={styles.card}>
           <TouchableOpacity onPress={() => abrirCuriosidades(jogo.curiosidades, jogo.imagensExtras)}>
-            {Array.isArray(jogo.imagem) ? (
-              jogo.imagem.map((img, i) => (
-                <Image key={i} source={{ uri: img }} style={styles.imagem} />
-              ))
-            ) : (
-              <Image source={{ uri: jogo.imagem }} style={styles.imagem} />
-            )}
+            <Image source={{ uri: jogo.imagem }} style={styles.imagem} />
           </TouchableOpacity>
           <View style={styles.info}>
             <Text style={styles.nome}>{jogo.nome}</Text>
@@ -186,11 +216,30 @@ export default function App() {
               <Image source={{ uri: jogo.comentario.avatar }} style={styles.avatar} />
               <Text style={styles.textoComentario}>{jogo.comentario.texto}</Text>
             </View>
+            <TextInput
+              style={styles.inputComentario}
+              placeholder="Deixe seu comentário"
+              value={comentarios[jogo.nome] || ''}
+              onChangeText={(texto) => handleCommentChange(jogo.nome, texto)}
+            />
           </View>
+          <View style={styles.avaliacao}>
+              <Text style={styles.avaliacaoTexto}>Avaliação: {jogo.avaliacao} / 5</Text>
+              <Slider
+                style={styles.slider}
+                minimumValue={0}
+                maximumValue={5}
+                step={0.1}
+                value={jogo.avaliacao}
+                onValueChange={(valor) => atualizarAvaliacao(index, valor)}
+                minimumTrackTintColor="#1B5E20"
+                maximumTrackTintColor="#E0E0E0"
+                thumbTintColor="#1B5E20"
+              />
+            </View>
         </View>
       ))}
 
-      {}
       <Modal animationType="fade" visible={modalVisible} transparent={true}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -224,11 +273,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#B0BEC5',
   },
   titulo: {
-    fontSize: 24,
+    fontSize: 32,
     fontFamily: 'Poppins_400Regular',
-    marginBottom: 16,
-    color: '#000',
-    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: 16, 
+    fontWeight: '700', 
+    textAlign: 'center',
+    textShadowColor: '#888', 
+    textShadowOffset: { width: 2, height: 2 }, 
+    textShadowRadius: 4,
+    letterSpacing: 1.5,
   },
   card: {
     marginTop: 10,
@@ -262,10 +316,10 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   descricao: {
+    textAlign: 'justify',
     marginTop: 8,
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#444',
+    color: '#333',
+    fontSize: 14,
     fontFamily: 'Poppins_400Regular',
   },
   comentario: {
@@ -290,47 +344,74 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
   },
+  inputComentario: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginTop: 10,
+    paddingHorizontal: 10,
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 14,
+  },
   modalOverlay: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
-  }, 
+  },
   modalContent: {
     backgroundColor: '#fff',
+    padding: 20,
     borderRadius: 12,
-    padding: 16,
-    width: '90%',
-    maxHeight: '80%',
+    width: screenWidth - 40,
   },
   curiosidadesTitulo: {
-    fontSize: 20,
+    fontSize: 18,
     fontFamily: 'Poppins_400Regular',
+    color: '#000',
     fontWeight: 'bold',
     marginBottom: 12,
+  },
+  carousel: {
+    marginBottom: 12,
+  },
+  imagemExtra: {
+    width: screenWidth - 32,
+    height: 200,
+    resizeMode: 'cover',
+    marginBottom: 8,
+    borderRadius: 12,
   },
   curiosidadeTexto: {
     fontSize: 14,
     fontFamily: 'Poppins_400Regular',
-    marginVertical: 4,
-    color: '#333',
+    color: '#555',
+    marginBottom: 6,
   },
   fecharBtn: {
-    marginTop: 20,
+    marginTop: 12,
+    paddingVertical: 10,
     backgroundColor: '#607D8B',
-    padding: 10,
     borderRadius: 8,
-    alignSelf: 'center',
+    alignItems: 'center',
   },
   fecharTexto: {
+    fontSize: 16,
     color: '#fff',
-    fontFamily: 'Poppins_400Regular',
+    fontWeight: 'bold',
   },
-  imagemExtra: {
-    width: screenWidth * 0.75,
-    height: 180,
-    borderRadius: 10,
-    marginHorizontal: 10,
+  picker: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#fff',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 16,
+  },
+  slider: {
+    width: '100%',
+    height: 40,
   },
 });
-
